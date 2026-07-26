@@ -1,0 +1,150 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+.venv/
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite databases
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+# Unity generated directories
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+設定	理由
+Library/	Unityが素材を再生成するキャッシュ。非常に大きくなりやすい
+Temp/	Unity実行中の一時ファイル
+Obj/	C#の中間生成物
+Build/、Builds/	ビルドした実行ファイル。ソースコードとは分ける
+Logs/	Unityエディターのログ
+UserSettings/	開発者ごとのUnityエディター設定
+MemoryCaptures/	メモリ解析時に作られる大容量ファイル
+
+次のUnityフォルダは除外しないでください。
+
+Assets/
+Packages/
+ProjectSettings/
+
+これらがないと、別のPCでUnityプロジェクトを再現できません。
+
+3. 開発環境によって追加するもの
+
+VS Codeを使う場合は、設定をすべて無条件に除外するより、まずローカル固有ファイルだけを対象にする方が安全です。
+
+# IDE
+.vscode/
+.idea/
+
+ただし、チームでVS Codeの推奨拡張や共通設定を共有するなら、.vscode/を丸ごと除外せず、必要なファイルだけ管理する選択肢もあります。1人開発の初期段階では除外して問題ありません。
+
+OSが作る不要ファイルも追加できます。
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+最小コストでできる検証方法
+
+今の段階では、次の内容まで入れれば十分です。
+
+# Python virtual environment
+.venv/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Unity
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+
+# IDE
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+.env
+.env.*
+!.env.example
+
+__pycache__/
+*.py[cod]
+
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
