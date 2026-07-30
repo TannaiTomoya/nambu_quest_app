@@ -451,10 +451,11 @@ const TICKET = {
 };
 
     // 工程名・順番は暫定。文化的事実の確認前に本番へ持ち込まないこと
+    // guaranteedTicket: 発表用。遠距離の海底では招待券を必ず出す
     const POINTS_DATA = [
-      { name: "近距離の海底", rank: 1, air: 25 },
-      { name: "中距離の海底", rank: 2, air: 40 },
-      { name: "遠距離の海底", rank: 3, air: 60 },
+      { name: "近距離の海底", rank: 1, air: 25, guaranteedTicket: false },
+      { name: "中距離の海底", rank: 2, air: 40, guaranteedTicket: false },
+      { name: "遠距離の海底", rank: 3, air: 60, guaranteedTicket: true },
     ];
 
     const ITEMS = [
@@ -651,7 +652,9 @@ const TICKET = {
       if (document.getElementById("chest-next").style.display !== "none") return;
       state.points = CONFIG.POINTS_MIN +
         Math.floor(Math.random() * (CONFIG.POINTS_MAX - CONFIG.POINTS_MIN + 1));
-      state.isTicket = Math.random() < CONFIG.TICKET_RATE;
+      // 発表用: 遠距離の海底では必ず招待券。それ以外は確率で出現
+      state.isTicket = state.selectedPoint.guaranteedTicket ||
+        Math.random() < CONFIG.TICKET_RATE;
 
       if (state.isTicket) {
         state.item = TICKET.name;
