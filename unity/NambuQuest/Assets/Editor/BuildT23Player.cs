@@ -37,6 +37,7 @@ public static class BuildT23Player
         Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
 
         RemoveUiBackground();
+        FixCameraPosition();
         EnsureGlobalLight2D();
         CreateWorldAndPlayer();
 
@@ -68,6 +69,19 @@ public static class BuildT23Player
         }
     }
 
+    /// <summary>
+    /// カメラが z=0 のままだと z=0 のワールドオブジェクトが視錐台の外になり
+    /// 描画されないため、2D 標準の z=-10 へ移動する。
+    /// </summary>
+    private static void FixCameraPosition()
+    {
+        Camera camera = Object.FindAnyObjectByType<Camera>();
+        if (camera != null && camera.transform.position.z >= 0f)
+        {
+            camera.transform.position = new Vector3(0f, 0f, -10f);
+        }
+    }
+
     private static void EnsureGlobalLight2D()
     {
         System.Type lightType = FindLight2DType();
@@ -77,26 +91,39 @@ public static class BuildT23Player
             return;
         }
 
-        if (Object.FindAnyObjectByType(lightType) != null)
+        Object light = Object.FindAnyObjectByType(lightType);
+        if (light == null)
         {
-            return;
-        }
-
-        GameObject lightGo = new GameObject("Global Light 2D");
-        Component light = lightGo.AddComponent(lightType);
-        var lightTypeProp = lightType.GetProperty("lightType");
-        if (lightTypeProp == null)
-        {
-            return;
-        }
-
-        foreach (object value in System.Enum.GetValues(lightTypeProp.PropertyType))
-        {
-            if (value.ToString() == "Global")
+            GameObject lightGo = new GameObject("Global Light 2D");
+            light = lightGo.AddComponent(lightType);
+            var lightTypeProp = lightType.GetProperty("lightType");
+            if (lightTypeProp != null)
             {
-                lightTypeProp.SetValue(light, value);
-                break;
+                foreach (object value in System.Enum.GetValues(lightTypeProp.PropertyType))
+                {
+                    if (value.ToString() == "Global")
+                    {
+                        lightTypeProp.SetValue(light, value);
+                        break;
+                    }
+                }
             }
+        }
+
+        // AddComponent 直後は適用ソーティングレイヤーが空で、Lit スプライトが
+        // 真っ黒になる。Editor 手動追加時と同じく全レイヤーへ適用する
+        SerializedObject so = new SerializedObject(light);
+        SerializedProperty layers = so.FindProperty("m_ApplyToSortingLayers");
+        if (layers != null)
+        {
+            SortingLayer[] allLayers = SortingLayer.layers;
+            layers.arraySize = allLayers.Length;
+            for (int i = 0; i < allLayers.Length; i++)
+            {
+                layers.GetArrayElementAtIndex(i).intValue = allLayers[i].id;
+            }
+
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
     }
 
