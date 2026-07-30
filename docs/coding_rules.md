@@ -92,6 +92,11 @@
   - パネル例：`TutorialPanel` / `LocationConfirmPanel` / `RecordSelectPanel` / `ReturnConfirmPanel` / `LoadingPanel` / `ErrorPanel` / `CompletePanel`
 - `NullReferenceException` を避けるため、参照確認を行う
 - Inspector 設定が必要な項目をコメントまたはドキュメントに残す
+- AI/Codex が直接書き換えてよい Unity 資産は、原則 `.cs` と `Assets/Editor/` 配下の Editor スクリプトのみ
+- `.unity` / `.prefab` をテキスト（YAML）で直接編集しない（過去に TMP・Button・参照設定の破損が発生）
+- シーン・プレハブの変更は Unity Editor API（Editor スクリプト）または手動 Inspector 経由で行う
+- 一時 Editor スクリプトは「用途」「再実行しても安全か（重複を起こさないか）」「実行方法」をコメントで明示する
+- 再生成の用途がない使い捨て Editor スクリプトは、役目を終えたら削除する（誤実行による手動調整の上書きを防ぐ）
 - 公式詳細URLや Maps URL を Unity 内に固定しない（FastAPI 経由のパスを使う）
 - 称号や柄の抽選ロジックを Unity 側で再実装しない（表示と失敗時フォールバックに限定する）
 - 報酬画像を置く場合はプロジェクト直下の `uploads/` を使い、`static/` 配下には置かない
