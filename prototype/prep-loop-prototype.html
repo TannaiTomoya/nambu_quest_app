@@ -441,21 +441,31 @@
   TICKET_RATE: 0.1,    // 招待券の出現率（検証で見えやすいよう高め。本番は要調整）
 };
 
-// 特別アイテム: 洋野町スパルタキャンプ招待券
+// 特別アイテム: 招待券（複数種）
 // 実物特典の運営条件（発行主体・利用確認・失効等）は未確定のため、
 // プロトタイプでは演出とリンク誘導のみを検証する
-const TICKET = {
-  name: "洋野町スパルタキャンプ招待券",
-  sub: "プログラミング合宿への特別招待",
-  url: "https://hirono.spartacamp.jp/",
+// iconFilter: 絵文字の色替え用CSSフィルタ（nanbu は黄緑）
+const TICKETS = {
+  sparta: {
+    name: "洋野町スパルタキャンプ招待券",
+    sub: "プログラミング合宿への特別招待",
+    url: "https://hirono.spartacamp.jp/",
+    iconFilter: "",
+  },
+  nanbu: {
+    name: "南部もぐり招待券",
+    sub: "種市高校南部もぐりへの特別招待",
+    url: "https://tan-hs.note.jp/n/n43c6215de800",
+    iconFilter: "hue-rotate(95deg) saturate(1.4) brightness(1.15)",
+  },
 };
 
     // 工程名・順番は暫定。文化的事実の確認前に本番へ持ち込まないこと
-    // guaranteedTicket: 発表用。遠距離の海底では招待券を必ず出す
+    // ticket: 発表用。指定した地点では該当の招待券を必ず出す
     const POINTS_DATA = [
-      { name: "近距離の海底", rank: 1, air: 25, guaranteedTicket: false },
-      { name: "中距離の海底", rank: 2, air: 40, guaranteedTicket: false },
-      { name: "遠距離の海底", rank: 3, air: 60, guaranteedTicket: true },
+      { name: "近距離の海底", rank: 1, air: 25, ticket: null },
+      { name: "中距離の海底", rank: 2, air: 40, ticket: "nanbu" },
+      { name: "遠距離の海底", rank: 3, air: 60, ticket: "sparta" },
     ];
 
     const ITEMS = [
@@ -652,20 +662,28 @@ const TICKET = {
       if (document.getElementById("chest-next").style.display !== "none") return;
       state.points = CONFIG.POINTS_MIN +
         Math.floor(Math.random() * (CONFIG.POINTS_MAX - CONFIG.POINTS_MIN + 1));
-      // 発表用: 遠距離の海底では必ず招待券。それ以外は確率で出現
-      state.isTicket = state.selectedPoint.guaranteedTicket ||
-        Math.random() < CONFIG.TICKET_RATE;
+      // 発表用: 地点に招待券が設定されていれば必ずその券を出す。
+      // 未設定の地点では確率でスパルタキャンプ招待券が出る
+      const guaranteed = state.selectedPoint.ticket
+        ? TICKETS[state.selectedPoint.ticket]
+        : null;
+      state.ticket = guaranteed ||
+        (Math.random() < CONFIG.TICKET_RATE ? TICKETS.sparta : null);
+      state.isTicket = state.ticket !== null;
 
       if (state.isTicket) {
-        state.item = TICKET.name;
+        state.item = state.ticket.name;
         document.getElementById("chest-art").textContent = "✨";
         document.getElementById("chest-title").textContent = "特別なものが眠っていた！";
         document.getElementById("chest-text").innerHTML =
           "<div class='ticket-card'>" +
-            "<div style='font-size:36px'>🎟️</div>" +
-            "<div class='ticket-title'>洋野町スパルタキャンプ<br>招待券</div>" +
-            "<div class='ticket-sub'>" + TICKET.sub + "</div>" +
-            "<a class='ticket-link' href='" + TICKET.url + "' target='_blank' rel='noopener'>詳細を見る</a>" +
+            "<div style='font-size:36px'>" +
+              "<span style='display:inline-block; filter:" +
+              (state.ticket.iconFilter || "none") + "'>🎟️</span>" +
+            "</div>" +
+            "<div class='ticket-title'>" + state.ticket.name.replace("招待券", "<br>招待券") + "</div>" +
+            "<div class='ticket-sub'>" + state.ticket.sub + "</div>" +
+            "<a class='ticket-link' href='" + state.ticket.url + "' target='_blank' rel='noopener'>詳細を見る</a>" +
           "</div>" +
           "もぐりポイント +" + state.points;
       } else {
@@ -738,7 +756,7 @@ const TICKET = {
       document.getElementById("r-rank").textContent = "★".repeat(state.rank);
       document.getElementById("r-point").textContent = state.selectedPoint.name;
       document.getElementById("r-item").innerHTML = state.isTicket
-        ? "🎟️ <a href='" + TICKET.url + "' target='_blank' rel='noopener' style='color:#ffd45c'>" +
+        ? "🎟️ <a href='" + state.ticket.url + "' target='_blank' rel='noopener' style='color:#ffd45c'>" +
           state.item + "</a>"
         : state.item;
       document.getElementById("r-points").textContent = "+" + state.points;
