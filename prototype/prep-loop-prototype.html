@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>南部もぐり 準備ループ検証プロトタイプ</title>
+<!--
+  【使い捨て検証プロトタイプ】
+  用途: 「装備準備タイムアタック→地点選択→潜水→装備解除演出」の
+        新ループ6画面を、操作説明なしで5人に試してもらうための簡易UI。
+  本番実装（Unity）ではない。検証が終わったらこのフォルダごと削除してよい。
+
+  実行方法: このファイルをブラウザで開くだけ（スマホはローカルサーバー経由推奨:
+            python3 -m http.server 8080 → http://<PCのIP>:8080/prototype/prep-loop-prototype.html）
+
+  調整パラメータはすぐ下の CONFIG にまとめてある。
+  注意: 装備工程の名称・順番は暫定。文化的事実の確認前に本番へ持ち込まない。
+-->
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
+    background: #0a1f3d;
+    color: #fff;
+    display: flex; justify-content: center; align-items: center;
+    user-select: none; -webkit-user-select: none;
+  }
+  #app {
+    width: 100%; max-width: 430px; height: 100%; max-height: 800px;
+    background: linear-gradient(180deg, #0d2b52 0%, #0a1f3d 60%, #061229 100%);
+    display: flex; flex-direction: column; padding: 20px; overflow: hidden;
+    position: relative;
+  }
+  .screen { flex: 1; display: none; flex-direction: column; }
+  .screen.active { display: flex; }
+  h1 { font-size: 22px; text-align: center; margin-bottom: 8px; }
+  .lead { font-size: 14px; text-align: center; color: #bcd4f0; line-height: 1.7; }
+  .spacer { flex: 1; }
+  .btn {
+    display: block; width: 100%; padding: 18px; border: 4px solid #b83a2e;
+    border-radius: 12px; background: #fdf5e0; color: #3d2a1c;
+    font-size: 20px; font-weight: bold; text-align: center; cursor: pointer;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn.locked { border-color: #555; background: #26354a; color: #7a8aa0; }
+  .timer {
+    font-size: 40px; font-weight: bold; text-align: center; margin: 6px 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .timer.warn { color: #ff9d5c; }
+  .step-card {
+    padding: 16px; margin: 8px 0; border-radius: 12px; font-size: 18px;
+    font-weight: bold; text-align: center; cursor: pointer;
+    background: #16375f; color: #6c85a8; border: 3px solid #24507f;
+  }
+  .step-card.current {
+    background: #fdf5e0; color: #3d2a1c; border-color: #b83a2e;
+    box-shadow: 0 0 16px rgba(255, 200, 120, 0.5);
+  }
+  .step-card.done { background: #1d4d35; color: #b8e6c8; border-color: #2f7a52; }
+  .gauge-wrap {
+    height: 34px; background: #16375f; border-radius: 17px; overflow: hidden;
+    border: 2px solid #24507f; margin: 12px 0;
+  }
+  .gauge-bar {
+    height: 100%; width: 0%; border-radius: 15px;
+    background: linear-gradient(90deg, #43c59e, #ffd45c);
+    transition: width 0.08s linear;
+  }
+  .gauge-label { text-align: center; font-size: 14px; color: #bcd4f0; }
+  .tap-btn {
+    width: 190px; height: 190px; border-radius: 50%; margin: 14px auto;
+    border: 6px solid #b83a2e; background: #fdf5e0; color: #3d2a1c;
+    font-size: 26px; font-weight: bold; cursor: pointer;
+    display: flex; justify-content: center; align-items: center;
+  }
+  .tap-btn:active { transform: scale(0.94); }
+  .rank-big { font-size: 64px; text-align: center; margin: 10px 0; }
+  .scene-art { font-size: 64px; text-align: center; margin: 16px 0; line-height: 1.3; }
+  .scene-text {
+    font-size: 16px; text-align: center; line-height: 2; color: #f2e8cf; padding: 0 8px;
+  }
+  .narration {
+    font-size: 17px; text-align: center; line-height: 2.2; color: #ffd9a0;
+    padding: 12px; border-top: 1px solid #3a5a85; border-bottom: 1px solid #3a5a85;
+  }
+  .result-row {
+    display: flex; justify-content: space-between; padding: 10px 6px;
+    border-bottom: 1px solid #24507f; font-size: 16px;
+  }
+  .hint { font-size: 12px; color: #7a97b8; text-align: center; margin-top: 8px; }
+  .mame {
+    display: inline-block; padding: 4px 14px; border-radius: 20px;
+    background: #c62f2f;
+    background-image: radial-gradient(#fff 15%, transparent 16%);
+    background-size: 10px 10px; color: transparent; height: 18px;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- 画面0: 導入 -->
+  <div class="screen active" id="s-intro">
+    <div class="spacer"></div>
+    <h1>南部もぐり</h1>
+    <p class="lead">
+      重い伝統装備を身につけて、海へ潜る。<br>
+      まずは船の上で、潜水の準備をしよう。<br><br>
+      準備が整うほど、遠くの海底まで潜れる。
+    </p>
+    <div class="spacer"></div>
+    <button class="btn" onclick="startPrep()">装備準備を始める</button>
+    <p class="hint">検証用プロトタイプ（本番実装ではありません）</p>
+  </div>
+
+  <!-- 画面1+2: 装備準備（順番タップ → 連打） -->
+  <div class="screen" id="s-prep">
+    <h1>装備準備</h1>
+    <div class="timer" id="prep-timer">12.0</div>
+    <div id="prep-steps">
+      <div class="step-card" id="step-0" onclick="tapStep(0)">1. 潜水服を着る</div>
+      <div class="step-card" id="step-1" onclick="tapStep(1)">2. 胸当てと錘を調整する</div>
+      <div class="step-card" id="step-2" onclick="tapStep(2)">3. ヘルメットと送気を確認する</div>
+    </div>
+    <div id="prep-mash" style="display:none">
+      <p class="gauge-label">残り時間で準備を仕上げよう！</p>
+      <div class="gauge-wrap"><div class="gauge-bar" id="gauge"></div></div>
+      <div class="tap-btn" onclick="tapMash()">準備！</div>
+    </div>
+    <div class="spacer"></div>
+  </div>
+
+  <!-- 時間切れ: 仲間の指差し確認 → 再挑戦 -->
+  <div class="screen" id="s-timeout">
+    <div class="spacer"></div>
+    <div class="scene-art">👉😟</div>
+    <p class="scene-text" id="timeout-text">
+      仲間が未完了の工程を指差した。<br>
+      「安全確認をして、もう一度準備しよう」
+    </p>
+    <div class="spacer"></div>
+    <button class="btn" onclick="startRetry()">残りの工程をやり直す（3秒）</button>
+  </div>
+
+  <!-- 画面3: 準備ランク表示 -->
+  <div class="screen" id="s-rank">
+    <div class="spacer"></div>
+    <h1>準備完了</h1>
+    <div class="rank-big" id="rank-stars">★</div>
+    <p class="lead" id="rank-text"></p>
+    <div class="spacer"></div>
+    <button class="btn" onclick="show('s-select'); renderSelect()">潜水地点を選ぶ</button>
+  </div>
+
+  <!-- 画面4: 潜水地点の選択 -->
+  <div class="screen" id="s-select">
+    <h1>潜水地点を選ぶ</h1>
+    <p class="lead">準備が整っているほど、遠くまで潜れる</p>
+    <div class="spacer"></div>
+    <div id="select-list"></div>
+    <div class="spacer"></div>
+  </div>
+
+  <!-- 潜水演出 -->
+  <div class="screen" id="s-dive">
+    <div class="spacer"></div>
+    <div class="scene-art" id="dive-art">🫧</div>
+    <p class="scene-text" id="dive-text">潜水中……</p>
+    <div class="spacer"></div>
+  </div>
+
+  <!-- 画面5: 宝箱獲得 -->
+  <div class="screen" id="s-chest">
+    <div class="spacer"></div>
+    <h1 id="chest-title">海底で何かを見つけた</h1>
+    <div class="scene-art" id="chest-art" onclick="openChest()">📦</div>
+    <p class="scene-text" id="chest-text">タップして調べる</p>
+    <div class="spacer"></div>
+    <button class="btn" id="chest-next" style="display:none" onclick="startRemoval()">船へ帰還する</button>
+  </div>
+
+  <!-- 画面6: 装備解除演出 -->
+  <div class="screen" id="s-removal">
+    <div class="spacer"></div>
+    <div class="narration" id="removal-narration"></div>
+    <div class="scene-art" id="removal-art"></div>
+    <p class="scene-text" id="removal-text"></p>
+    <div class="spacer"></div>
+    <p class="hint" id="removal-hint">タップで進む</p>
+  </div>
+
+  <!-- 結果 -->
+  <div class="screen" id="s-result">
+    <h1>潜水の記録</h1>
+    <div class="spacer"></div>
+    <div class="result-row"><span>準備ランク</span><span id="r-rank"></span></div>
+    <div class="result-row"><span>潜水地点</span><span id="r-point"></span></div>
+    <div class="result-row"><span>獲得アイテム</span><span id="r-item"></span></div>
+    <div class="result-row"><span>もぐりポイント</span><span id="r-points"></span></div>
+    <div class="result-row"><span>プレイ時間</span><span id="r-time"></span></div>
+    <div class="spacer"></div>
+    <button class="btn" onclick="location.reload()">もう一度潜る</button>
+  </div>
+
+</div>
+
+<script>
+"use strict";
+
+// ===== 調整パラメータ（検証で触るのはここだけ） =====
+const CONFIG = {
+  PREP_TIME: 12.0,     // 装備準備の制限時間（秒）
+  RETRY_TIME: 3.0,     // 時間切れ後の再挑戦時間（秒）
+  TAP_GAIN: 7,         // 連打1回あたりのゲージ上昇（%）
+  RANK2_GAUGE: 50,     // 準備ランク2のゲージ閾値（%）
+  RANK3_GAUGE: 85,     // 準備ランク3のゲージ閾値（%）
+  POINTS_MIN: 10,      // 獲得ポイント下限
+  POINTS_MAX: 30,      // 獲得ポイント上限
+};
+
+// 工程名・順番は暫定。文化的事実の確認前に本番へ持ち込まないこと
+const POINTS_DATA = [
+  { name: "近距離の海底", rank: 1, air: 25 },
+  { name: "中距離の海底", rank: 2, air: 40 },
+  { name: "遠距離の海底", rank: 3, air: 60 },
+];
+
+const ITEMS = [
+  "豆絞り手ぬぐい（赤）",
+  "真鍮ヘルメットの模型",
+  "送気ポンプの絵図",
+  "潜水靴のミニチュア",
+  "古い作業日誌",
+];
+
+// ===== 状態 =====
+const state = {
+  startedAt: 0,
+  stepDone: [false, false, false],
+  gauge: 0,
+  rank: 1,
+  isRetry: false,
+  selectedPoint: null,
+  item: "",
+  points: 0,
+  timerId: null,
+  timeLeft: 0,
+  removalFrame: 0,
+};
+
+function show(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+// ===== 画面1+2: 装備準備 =====
+function startPrep() {
+  state.startedAt = Date.now();
+  state.stepDone = [false, false, false];
+  state.gauge = 0;
+  state.isRetry = false;
+  show("s-prep");
+  document.getElementById("prep-mash").style.display = "none";
+  document.getElementById("prep-steps").style.display = "block";
+  renderSteps();
+  runTimer(CONFIG.PREP_TIME, onPrepTimeout);
+}
+
+function startRetry() {
+  state.isRetry = true;
+  show("s-prep");
+  document.getElementById("prep-mash").style.display = "none";
+  document.getElementById("prep-steps").style.display = "block";
+  renderSteps();
+  runTimer(CONFIG.RETRY_TIME, onPrepTimeout);
+}
+
+function runTimer(seconds, onEnd) {
+  clearInterval(state.timerId);
+  state.timeLeft = seconds;
+  updateTimerLabel();
+  state.timerId = setInterval(() => {
+    state.timeLeft -= 0.1;
+    if (state.timeLeft <= 0) {
+      state.timeLeft = 0;
+      clearInterval(state.timerId);
+      updateTimerLabel();
+      onEnd();
+      return;
+    }
+    updateTimerLabel();
+  }, 100);
+}
+
+function updateTimerLabel() {
+  const label = document.getElementById("prep-timer");
+  label.textContent = state.timeLeft.toFixed(1);
+  label.classList.toggle("warn", state.timeLeft <= 3);
+}
+
+function currentStepIndex() {
+  return state.stepDone.findIndex(done => !done);
+}
+
+function renderSteps() {
+  const current = currentStepIndex();
+  for (let i = 0; i < 3; i++) {
+    const card = document.getElementById("step-" + i);
+    card.className = "step-card" +
+      (state.stepDone[i] ? " done" : (i === current ? " current" : ""));
+    if (state.stepDone[i]) {
+      card.textContent = card.textContent.replace(/^(✓ )?/, "✓ ");
+    }
+  }
+}
+
+function tapStep(index) {
+  // 順番どおりのタップだけ受け付ける（順序を伝えるための仕様）
+  if (index !== currentStepIndex()) return;
+  state.stepDone[index] = true;
+  renderSteps();
+  if (currentStepIndex() === -1) {
+    if (state.isRetry) {
+      // 再挑戦で必須工程が完了：ランク1で先へ進む（連打はなし）
+      clearInterval(state.timerId);
+      decideRank();
+    } else {
+      // 連打フェーズへ
+      document.getElementById("prep-steps").style.display = "none";
+      document.getElementById("prep-mash").style.display = "block";
+    }
+  }
+}
+
+function tapMash() {
+  state.gauge = Math.min(100, state.gauge + CONFIG.TAP_GAIN);
+  document.getElementById("gauge").style.width = state.gauge + "%";
+}
+
+function onPrepTimeout() {
+  if (currentStepIndex() !== -1) {
+    // 必須工程が未完了
+    if (state.isRetry) {
+      // 再挑戦でも未完了 → 準備画面へ戻す（潜らせない）
+      startPrep();
+      return;
+    }
+    show("s-timeout");
+    return;
+  }
+  decideRank();
+}
+
+// ===== 画面3: 準備ランク =====
+function decideRank() {
+  if (state.gauge >= CONFIG.RANK3_GAUGE) {
+    state.rank = 3;
+  } else if (state.gauge >= CONFIG.RANK2_GAUGE) {
+    state.rank = 2;
+  } else {
+    state.rank = 1;
+  }
+
+  const texts = {
+    1: "必須の工程は完了した。<br>今日は近くの海底までにしておこう。",
+    2: "手際よく準備が整った。<br>中距離の海底まで潜れる。",
+    3: "見事な準備だ。<br>どの海底へでも潜れる。",
+  };
+  document.getElementById("rank-stars").textContent = "★".repeat(state.rank) + "☆".repeat(3 - state.rank);
+  document.getElementById("rank-text").innerHTML =
+    "準備ランク " + state.rank + "<br><br>" + texts[state.rank];
+  show("s-rank");
+}
+
+// ===== 画面4: 地点選択 =====
+function renderSelect() {
+  const list = document.getElementById("select-list");
+  list.innerHTML = "";
+  POINTS_DATA.forEach(point => {
+    const unlocked = state.rank >= point.rank;
+    const btn = document.createElement("button");
+    btn.className = "btn" + (unlocked ? "" : " locked");
+    btn.style.marginBottom = "12px";
+    btn.innerHTML = unlocked
+      ? point.name + "<br><span style='font-size:13px'>消費空気 " + point.air + "</span>"
+      : point.name + "<br><span style='font-size:13px'>🔒 準備ランク" + point.rank + "で潜れる</span>";
+    if (unlocked) {
+      btn.onclick = () => { state.selectedPoint = point; startDive(); };
+    }
+    list.appendChild(btn);
+  });
+}
+
+// ===== 潜水演出 =====
+function startDive() {
+  show("s-dive");
+  const art = document.getElementById("dive-art");
+  const frames = ["🫧", "🫧🫧", "🫧🫧🫧", "🪸"];
+  let i = 0;
+  art.textContent = frames[0];
+  const id = setInterval(() => {
+    i++;
+    if (i >= frames.length) {
+      clearInterval(id);
+      document.getElementById("chest-art").textContent = "📦";
+      document.getElementById("chest-text").textContent = "タップして調べる";
+      document.getElementById("chest-next").style.display = "none";
+      show("s-chest");
+      return;
+    }
+    art.textContent = frames[i];
+    document.getElementById("dive-text").textContent =
+      i === frames.length - 1 ? state.selectedPoint.name + "に到着" : "潜水中……";
+  }, 700);
+}
+
+// ===== 画面5: 宝箱 =====
+function openChest() {
+  if (document.getElementById("chest-next").style.display !== "none") return;
+  state.item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+  state.points = CONFIG.POINTS_MIN +
+    Math.floor(Math.random() * (CONFIG.POINTS_MAX - CONFIG.POINTS_MIN + 1));
+  document.getElementById("chest-art").textContent = "🎁";
+  document.getElementById("chest-text").innerHTML =
+    "<b>" + state.item + "</b> を見つけた！<br>もぐりポイント +" + state.points;
+  document.getElementById("chest-next").style.display = "block";
+}
+
+// ===== 画面6: 装備解除演出 =====
+const REMOVAL_FRAMES = [
+  {
+    narration: "この装備は、一人では外せないほど重い。<br>仲間と支え合って、ようやく潜水を終える。",
+    art: "🤿",
+    text: "潜水士が船上へ帰還した",
+  },
+  {
+    narration: "",
+    art: "🧑‍🤝‍🧑🤿🧑‍🤝‍🧑",
+    text: "仲間2人が左右から装備を支える",
+  },
+  {
+    narration: "",
+    art: "🙌🤿",
+    text: "もう1人がヘルメットを慎重に外す",
+  },
+  {
+    narration: "",
+    art: "😮‍💨",
+    text: "豆絞り姿の潜水士が現れた <span class='mame'>豆絞り</span>",
+  },
+  {
+    narration: "",
+    art: "😊",
+    text: "張りつめた表情が、ほっとした笑顔に変わった",
+  },
+];
+
+function startRemoval() {
+  state.removalFrame = 0;
+  show("s-removal");
+  renderRemovalFrame();
+  document.getElementById("s-removal").onclick = nextRemovalFrame;
+}
+
+function renderRemovalFrame() {
+  const frame = REMOVAL_FRAMES[state.removalFrame];
+  document.getElementById("removal-narration").innerHTML = frame.narration;
+  document.getElementById("removal-narration").style.display = frame.narration ? "block" : "none";
+  document.getElementById("removal-art").innerHTML = frame.art;
+  document.getElementById("removal-text").innerHTML = frame.text;
+}
+
+function nextRemovalFrame() {
+  state.removalFrame++;
+  if (state.removalFrame >= REMOVAL_FRAMES.length) {
+    document.getElementById("s-removal").onclick = null;
+    showResult();
+    return;
+  }
+  renderRemovalFrame();
+}
+
+// ===== 結果 =====
+function showResult() {
+  const elapsed = ((Date.now() - state.startedAt) / 1000).toFixed(0);
+  document.getElementById("r-rank").textContent = "★".repeat(state.rank);
+  document.getElementById("r-point").textContent = state.selectedPoint.name;
+  document.getElementById("r-item").textContent = state.item;
+  document.getElementById("r-points").textContent = "+" + state.points;
+  document.getElementById("r-time").textContent = elapsed + " 秒";
+  show("s-result");
+}
+</script>
+</body>
+</html>
