@@ -452,20 +452,24 @@ const TICKETS = {
     url: "https://hirono.spartacamp.jp/",
     iconHtml: "🎟️",
   },
-  nanbu: {
-    name: "南部もぐり招待券",
-    sub: "種市高校南部もぐりへの特別招待",
-    url: "https://tan-hs.note.jp/n/n43c6215de800",
-    iconHtml: "<span style='display:inline-block; filter:hue-rotate(95deg) saturate(1.4) brightness(1.15)'>🎟️</span>",
+  taiken: {
+    name: "種市高校南部もぐり体験講座特別招待券",
+    titleHtml: "種市高校南部もぐり<br>体験講座特別招待券",
+    sub: "南部もぐり潜水体験講座への特別招待",
+    url: "https://hirono-dmo.net/2026/06/02/%E3%80%8C%E4%BB%A4%E5%92%8C8%E5%B9%B4%E5%BA%A6-%E7%A8%AE%E5%B8%82%E9%AB%98%E6%A0%A1-%E5%8D%97%E9%83%A8%E3%82%82%E3%81%90%E3%82%8A%E6%BD%9C%E6%B0%B4%E4%BD%93%E9%A8%93%E8%AC%9B%E5%BA%A7%E3%80%8D/",
+    // 白半分・水色半分のチケット型アイコン（CSS描画）
+    iconHtml: "<span style='display:inline-block; width:46px; height:30px; border-radius:6px; " +
+      "background:linear-gradient(90deg, #ffffff 50%, #8fd8f2 50%); " +
+      "border:2px solid #e8f6fb; vertical-align:middle;'></span>",
   },
   coupon: {
     name: "洋野町観光で使える期間限定クーポン",
     titleHtml: "洋野町観光で使える<br>期間限定クーポン",
     sub: "洋野町観光ポータルの特別クーポン",
     url: "https://portal.town.hirono.iwate.jp/coupon/",
-    // 白半分・水色半分のチケット型アイコン（CSS描画）
+    // 緑半分・青半分のチケット型アイコン（CSS描画）
     iconHtml: "<span style='display:inline-block; width:46px; height:30px; border-radius:6px; " +
-      "background:linear-gradient(90deg, #ffffff 50%, #8fd8f2 50%); " +
+      "background:linear-gradient(90deg, #4db06a 50%, #3a7bd5 50%); " +
       "border:2px solid #e8f6fb; vertical-align:middle;'></span>",
   },
 };
@@ -474,7 +478,7 @@ const TICKETS = {
     // ticket: 発表用。指定した地点では該当の招待券を必ず出す
     const POINTS_DATA = [
       { name: "近距離の海底", rank: 1, air: 25, ticket: "coupon" },
-      { name: "中距離の海底", rank: 2, air: 40, ticket: "nanbu" },
+      { name: "中距離の海底", rank: 2, air: 40, ticket: "taiken" },
       { name: "遠距離の海底", rank: 3, air: 60, ticket: "sparta" },
     ];
 
