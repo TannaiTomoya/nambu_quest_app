@@ -1,0 +1,14 @@
+{
+  "name": "nambu-quest",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler pages dev",
+    "deploy:staging": "wrangler pages deploy prototype --project-name=nambu-quest --branch=staging",
+    "db:migrate:local": "wrangler d1 execute nambu-quest-events --local --file=./db/schema.sql",
+    "db:migrate:remote": "wrangler d1 execute nambu-quest-events --remote --file=./db/schema.sql",
+    "db:count": "wrangler d1 execute nambu-quest-events --remote --command \"SELECT event, COUNT(*) AS n FROM events GROUP BY event;\""
+  },
+  "devDependencies": {
+    "wrangler": "^4.118.0"
+  }
+}

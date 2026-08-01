@@ -1,6 +1,14 @@
 # Virtual environment
 .venv/
 
+# Cloudflare Wrangler
+.wrangler/
+.dev.vars
+
+# Node
+node_modules/
+package-lock.json
+
 # Environment variables
 .env
 .env.*

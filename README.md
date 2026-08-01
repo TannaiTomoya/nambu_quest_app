@@ -78,6 +78,64 @@ destinationId → 実URL の対応表は `game-config.json` の `DESTINATIONS` �
 - 独自ドメインはQRコード印刷前までに確定
 - 会場利用はスマートフォンのモバイル通信を前提とする
 
+## Cloudflare ステージング（Pages + D1）
+
+リポジトリ構成：
+
+| パス | 役割 |
+|---|---|
+| `prototype/` | Pages の静的配信ルート（`pages_build_output_dir`） |
+| `functions/` | Pages Functions（`POST /events`・`GET /go/:destinationId`） |
+| `db/schema.sql` | D1 テーブル定義（`event_id` UNIQUE） |
+| `wrangler.toml` | プロジェクト名・D1バインディング |
+
+### 初回セットアップ
+
+```bash
+npm install
+npx wrangler login
+
+# D1 作成（出力の database_id を wrangler.toml に記入）
+npx wrangler d1 create nambu-quest-events
+
+# スキーマ適用（リモート）
+npm run db:migrate:remote
+
+# Pages プロジェクト作成（未作成時）
+npx wrangler pages project create nambu-quest
+
+# ステージング相当でデプロイ（*.pages.dev）
+npx wrangler pages deploy prototype --project-name=nambu-quest
+```
+
+ダッシュボードで Pages プロジェクトに D1 バインディング `DB` → `nambu-quest-events` を紐づける（production / preview 両方）。
+
+### ローカルでの一体起動
+
+```bash
+npm run db:migrate:local
+npm run dev
+# → http://127.0.0.1:8788/ （ポートは Wrangler の表示に従う）
+```
+
+計測の送信先は同一オリジンの `/events`・`/go/` です。`python3 -m http.server` だけでは Functions が動かないため、計測確認は `npm run dev` か Pages 上で行ってください。
+
+### 冪等性の確認（同一 event_id × 3）
+
+```bash
+EID=$(uuidgen | tr '[:upper:]' '[:lower:]')
+# ステージングURLに合わせてホストを差し替え
+for i in 1 2 3; do
+  curl -s -o /dev/null -w "%{http_code} " -X POST "https://<project>.pages.dev/events" \
+    -H 'Content-Type: application/json' \
+    -d "{\"event\":\"game_completed\",\"event_id\":\"$EID\",\"schema_version\":\"2\",\"environment\":\"staging\",\"session_id\":\"idempotency-test\",\"client_ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}"
+done
+echo
+npx wrangler d1 execute nambu-quest-events --remote \
+  --command "SELECT COUNT(*) AS n FROM events WHERE event_id='$EID';"
+# 期待値: n = 1
+```
+
 ## 旧実装
 
 | 内容 | 場所 |

@@ -132,9 +132,9 @@ SELECT
 
 ## クライアント側の挙動（実装済み）
 
-- 送信先は `prototype/js/analytics.js` 冒頭の定数2つ（`EVENTS_ENDPOINT` / `GO_BASE`）で管理
-  - 開発中：`http://127.0.0.1:8787/...`
-  - 本番（同一オリジン）：`/events` と `/go/` に変更する
+- 送信先は同一オリジン相対パス `/events`・`/go/`（`analytics.js` 冒頭）
+  - ローカル一体起動：`npm run dev`（`wrangler pages dev`）
+  - ステージング/本番：Cloudflare Pages（`functions/` + D1）
 - outbox方式：イベントは先に sessionStorage のキューへ保存し、送信成功後に削除。
   オンライン復帰・pagehide・タブ非表示のタイミングで再送する
 - 送信失敗でもゲームは止まらない

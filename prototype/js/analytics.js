@@ -21,10 +21,11 @@
 
 const ANALYTICS = (() => {
   // ===== 送信先はここ1か所で管理 =====
-  // 開発: ローカルWorker（wrangler dev 等）
-  // 本番: Cloudflare Pages Functions（同一オリジン）なら "/events" と "/go/" に変更する
-  const EVENTS_ENDPOINT = "http://127.0.0.1:8787/events";
-  const GO_BASE = "http://127.0.0.1:8787/go/";
+  // 同一オリジン相対パス。ローカルは `npx wrangler pages dev`、
+  // ステージング/本番は Cloudflare Pages 上で /events と /go/ が提供される。
+  // （python -m http.server 単体では Functions が無いため計測は失敗し、ゲームは継続）
+  const EVENTS_ENDPOINT = "/events";
+  const GO_BASE = "/go/";
 
   const SCHEMA_VERSION = "2";
   const GAME_VERSION = "1.0.0";
