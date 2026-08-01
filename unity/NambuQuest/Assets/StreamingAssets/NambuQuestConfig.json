@@ -1,0 +1,52 @@
+{
+  "prepSeconds": 8.0,
+  "mashPoint": 0.08,
+  "rank2Threshold": 0.34,
+  "rank3Threshold": 0.66,
+  "introTitle": "南部もぐり",
+  "introBody": "重い伝統装備を身につけて、海へ潜る。\nまずは船の上で、潜水の準備をしよう。\n\n準備が整うほど、遠くの海底まで潜れる。",
+  "prepTitle": "装備準備",
+  "prepGuide": "南部もぐりの装備を順番に準備しよう",
+  "mashGuide": "残り時間で準備を仕上げよう！",
+  "steps": [
+    {
+      "label": "1. 潜水服を着る",
+      "stageLabel": "潜水服"
+    },
+    {
+      "label": "2. 胸当てと錘を調整する",
+      "stageLabel": "胸当て・錘"
+    },
+    {
+      "label": "3. ヘルメットと送気を確認する",
+      "stageLabel": "ヘルメット・送気"
+    }
+  ],
+  "locations": [
+    {
+      "id": "near",
+      "name": "近距離の海底",
+      "requiredRank": 1,
+      "depth": 12,
+      "ticketTitle": "種市歴史民俗資料館 入館案内",
+      "ticketBody": "南部もぐりの歴史を知る入口。展示情報への誘導を想定。"
+    },
+    {
+      "id": "middle",
+      "name": "中距離の海底",
+      "requiredRank": 2,
+      "depth": 24,
+      "ticketTitle": "洋野町スパルタキャンプ 招待券",
+      "ticketBody": "プログラミング合宿への特別招待。"
+    },
+    {
+      "id": "far",
+      "name": "遠距離の海底",
+      "requiredRank": 3,
+      "depth": 36,
+      "ticketTitle": "南部もぐり体験リンク",
+      "ticketBody": "公式観光情報や体験ページへのリンク導線を想定。"
+    }
+  ],
+  "returnVideoFile": "nanbu_return_scene.mp4"
+}
