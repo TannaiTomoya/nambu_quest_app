@@ -268,7 +268,7 @@ h1 {
 .return-video-caption {
   padding: 10px 8px;
   font-size: 14px;
-  line-height: 1.55;
+  line-height: 1.35;
 }
 
 .return-caption-line {
@@ -364,7 +364,7 @@ h1 {
   .return-video-caption {
     padding: 8px 4px;
     font-size: 11px;
-    line-height: 1.5;
+    line-height: 1.35;
   }
 
   .result-row {
