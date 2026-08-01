@@ -9,5 +9,5 @@ pages_build_output_dir = "prototype"
 [[d1_databases]]
 binding = "DB"
 database_name = "nambu-quest-events"
-# d1 create 後に発行される ID を記入する
-database_id = "REPLACE_AFTER_D1_CREATE"
+# リモート作成後に実IDへ差し替える。ローカル(--local)検証はこの仮IDで可
+database_id = "00000000-0000-0000-0000-000000000001"
