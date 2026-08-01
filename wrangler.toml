@@ -9,5 +9,4 @@ pages_build_output_dir = "prototype"
 [[d1_databases]]
 binding = "DB"
 database_name = "nambu-quest-events"
-# リモート作成後に実IDへ差し替える。ローカル(--local)検証はこの仮IDで可
-database_id = "00000000-0000-0000-0000-000000000001"
+database_id = "3f6d92c6-b36a-4a83-b2a3-79fea2d080b4"
