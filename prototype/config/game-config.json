@@ -1,0 +1,82 @@
+{
+  "config_version": "1.0.0",
+  "_note": "文言・装備工程の名称・順番は文化監修前の暫定。種市歴史民俗資料館等への確認前に確定させないこと。実物特典の運営条件（発行主体・利用確認・失効等）は未確定",
+  "features": {
+    "analytics": true,
+    "trackedLinks": true
+  },
+  "CONFIG": {
+    "PREP_TIME": 12.0,
+    "RETRY_TIME": 3.0,
+    "TAP_GAIN": 7,
+    "RANK2_GAUGE": 50,
+    "RANK3_GAUGE": 85,
+    "POINTS_MIN": 10,
+    "POINTS_MAX": 30,
+    "TICKET_RATE": 0.1
+  },
+  "TICKETS": {
+    "sparta": {
+      "name": "洋野町スパルタキャンプ招待券",
+      "sub": "プログラミング合宿への特別招待",
+      "destinationId": "sparta",
+      "iconHtml": "🎟️"
+    },
+    "taiken": {
+      "name": "種市高校南部もぐり体験講座特別招待券",
+      "titleHtml": "種市高校南部もぐり<br>体験講座特別招待券",
+      "sub": "南部もぐり潜水体験講座への特別招待",
+      "destinationId": "taiken",
+      "iconHtml": "<span style='display:inline-block; width:46px; height:30px; border-radius:6px; background:linear-gradient(90deg, #ffffff 50%, #8fd8f2 50%); border:2px solid #e8f6fb; vertical-align:middle;'></span>"
+    },
+    "coupon": {
+      "name": "洋野町観光で使える期間限定クーポン",
+      "titleHtml": "洋野町観光で使える<br>期間限定クーポン",
+      "sub": "洋野町観光ポータルの特別クーポン",
+      "destinationId": "coupon",
+      "iconHtml": "<span style='display:inline-block; width:46px; height:30px; border-radius:6px; background:linear-gradient(90deg, #4db06a 50%, #3a7bd5 50%); border:2px solid #e8f6fb; vertical-align:middle;'></span>"
+    }
+  },
+  "POINTS_DATA": [
+    { "name": "近距離の海底", "rank": 1, "air": 25, "ticket": "coupon" },
+    { "name": "中距離の海底", "rank": 2, "air": 40, "ticket": "taiken" },
+    { "name": "遠距離の海底", "rank": 3, "air": 60, "ticket": "sparta" }
+  ],
+  "ITEMS": [
+    "豆絞り手ぬぐい（赤）",
+    "真鍮ヘルメットの模型",
+    "送気ポンプの絵図",
+    "潜水靴のミニチュア",
+    "古い作業日誌"
+  ],
+  "DESTINATIONS": {
+    "_comment": "Worker未達時のフォールバック用の直接URL。正式な許可リストはWorker側で管理する",
+    "sparta": "https://hirono.spartacamp.jp/",
+    "taiken": "https://hirono-dmo.net/2026/06/02/%E3%80%8C%E4%BB%A4%E5%92%8C8%E5%B9%B4%E5%BA%A6-%E7%A8%AE%E5%B8%82%E9%AB%98%E6%A0%A1-%E5%8D%97%E9%83%A8%E3%82%82%E3%81%90%E3%82%8A%E6%BD%9C%E6%B0%B4%E4%BD%93%E9%A8%93%E8%AC%9B%E5%BA%A7%E3%80%8D/",
+    "coupon": "https://portal.town.hirono.iwate.jp/coupon/"
+  },
+  "STRINGS": {
+    "introTitle": "南部もぐり",
+    "introLead": "重い伝統装備を身につけて、海へ潜る。<br>まずは船の上で、潜水の準備をしよう。<br><br>準備が整うほど、遠くの海底まで潜れる。",
+    "stepLabels": [
+      "1. 潜水服を着る",
+      "2. 胸当てと錘を調整する",
+      "3. ヘルメットと送気を確認する"
+    ],
+    "gearTags": ["潜水服", "胸当て・錘", "ヘルメット・送気"],
+    "prepNotes": [
+      "装備なし<br>待機中",
+      "潜水服<br>装着中",
+      "胸当て・錘<br>装着中",
+      "ヘルメット<br>確認中"
+    ],
+    "mashGuide": "残り時間で準備を仕上げよう！",
+    "timeoutText": "仲間が未完了の工程を指差した。<br>「安全確認をして、もう一度準備しよう」",
+    "rankTexts": {
+      "1": "必須の工程は完了した。<br>今日は近くの海底までにしておこう。",
+      "2": "手際よく準備が整った。<br>中距離の海底まで潜れる。",
+      "3": "見事な準備だ。<br>どの海底へでも潜れる。"
+    },
+    "returnCaption": "重い装備を仲間と支え合って外す。<br>潜水士の表情が、ほっとした笑顔に変わる。"
+  }
+}
