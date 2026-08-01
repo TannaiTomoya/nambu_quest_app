@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>南部もぐり 準備ループ</title>
   <!--
   【南部もぐり観光RPG 本体】
@@ -16,6 +16,7 @@
   注意: 装備工程の名称・順番は暫定。文化的事実の確認前に本番へ持ち込まない。
 -->
   <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/poster-theme.css">
 </head>
 
 <body>
@@ -349,13 +350,13 @@
             id="return-video"
             src="assets/nanbu_return_scene.mp4"
             playsinline
-            muted
             preload="auto"
           ></video>
+          <button class="video-sound-button" id="video-sound-button" type="button" hidden>音声付きで再生</button>
         </div>
         <div class="return-video-caption">
-          重い装備を仲間と支え合って外す。<br>
-          潜水士の表情が、ほっとした笑顔に変わる。
+          <span class="return-caption-line">重い装備を仲間と支え合って外す。</span>
+          <span class="return-caption-line">潜水士の表情が、ほっとした笑顔に変わる。</span>
         </div>
       </div>
       <p class="hint" id="removal-hint">タップでスキップ</p>

@@ -1,0 +1,320 @@
+/* 種市高校体験講座ポスターを基調にした水中テーマ */
+:root {
+  --sea-black: #020b11;
+  --sea-deep: #001d2b;
+  --sea-blue: #034963;
+  --sea-cyan: #27b8d3;
+  --sea-foam: #b8eef4;
+  --poster-white: #f8fbfa;
+  --poster-muted: #b9dce2;
+  --poster-line: rgba(238, 252, 252, 0.72);
+  --poster-panel: rgba(1, 18, 27, 0.86);
+  --poster-ink: #061217;
+  --poster-gold: #f4d37a;
+  --display-font: "Avenir Next Condensed", "Arial Narrow", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+}
+
+html,
+body,
+#app,
+button,
+a {
+  touch-action: manipulation;
+}
+
+body {
+  font-family: var(--display-font);
+  background: var(--sea-black);
+  color: var(--poster-white);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+#app {
+  isolation: isolate;
+  padding: 18px;
+  background:
+    linear-gradient(166deg, transparent 0 18%, rgba(147, 237, 245, 0.08) 18.5%, transparent 30%),
+    linear-gradient(194deg, transparent 0 11%, rgba(68, 197, 218, 0.09) 11.5%, transparent 27%),
+    radial-gradient(ellipse at 50% -4%, rgba(184, 246, 249, 0.46) 0%, rgba(42, 183, 207, 0.22) 18%, transparent 43%),
+    linear-gradient(180deg, #087e9c 0%, #04546d 15%, #012f43 38%, #001a2a 68%, #020b11 100%);
+  box-shadow: 0 0 0 1px rgba(193, 242, 246, 0.2), 0 18px 50px rgba(0, 0, 0, 0.48);
+}
+
+#app::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(174deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 22px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 30%, rgba(0, 0, 0, 0.18) 72%, rgba(0, 0, 0, 0.5));
+  mix-blend-mode: screen;
+  opacity: 0.72;
+}
+
+#app::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  box-shadow: inset 0 0 90px rgba(0, 7, 12, 0.62);
+}
+
+h1,
+.timer,
+.rank-big,
+.ticket-title {
+  font-family: var(--display-font);
+  font-weight: 900;
+  letter-spacing: 0;
+  color: var(--poster-white);
+  text-shadow: 0 3px 0 rgba(0, 12, 18, 0.7), 0 8px 18px rgba(0, 0, 0, 0.34);
+}
+
+h1 {
+  font-size: 28px;
+  margin-bottom: 12px;
+}
+
+.lead {
+  color: var(--poster-muted);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.75;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.48);
+}
+
+.btn,
+.step-card.current,
+.gear-tag.on,
+.tap-btn,
+.command-panel button:first-child {
+  border-color: var(--poster-white);
+  background: rgba(1, 13, 19, 0.88);
+  color: var(--poster-white);
+  box-shadow: inset 0 0 0 1px rgba(39, 184, 211, 0.8), 0 8px 22px rgba(0, 0, 0, 0.34);
+}
+
+.btn {
+  border-width: 2px;
+  border-radius: 4px;
+  font-family: var(--display-font);
+  font-weight: 900;
+  text-shadow: 0 2px 0 #000;
+}
+
+.btn:active,
+.command-panel button:active {
+  background: var(--sea-cyan);
+  color: var(--poster-ink);
+  text-shadow: none;
+}
+
+.btn.locked,
+.step-card {
+  border-color: rgba(184, 238, 244, 0.28);
+  background: rgba(1, 23, 35, 0.72);
+  color: rgba(185, 220, 226, 0.5);
+  box-shadow: none;
+}
+
+.step-card {
+  border-width: 2px;
+  border-radius: 4px;
+  font-weight: 900;
+}
+
+.step-card.current {
+  border-left: 7px solid var(--sea-cyan);
+}
+
+.step-card.done {
+  border-color: rgba(121, 225, 209, 0.72);
+  background: rgba(3, 75, 73, 0.72);
+  color: #d6fff8;
+}
+
+.timer.warn {
+  color: #ffd16e;
+}
+
+.intro-character-stage::before {
+  background: rgba(39, 184, 211, 0.15);
+  border-color: rgba(184, 238, 244, 0.5);
+  box-shadow: 0 0 24px rgba(39, 184, 211, 0.16);
+}
+
+.gear-tag,
+.event-tag,
+.hud-cell,
+.command-panel {
+  border-color: rgba(184, 238, 244, 0.54);
+  border-radius: 3px;
+  background: var(--poster-panel);
+  color: var(--poster-muted);
+}
+
+.gauge-wrap {
+  height: 24px;
+  border: 2px solid rgba(248, 251, 250, 0.72);
+  border-radius: 2px;
+  background: rgba(0, 10, 16, 0.86);
+}
+
+.gauge-bar {
+  border-radius: 0;
+  background: linear-gradient(90deg, #0aa8c4, #8ee9ef 68%, #f4d37a);
+}
+
+.gauge-label,
+.hint {
+  color: var(--poster-muted);
+}
+
+.tap-btn {
+  border-width: 3px;
+  box-shadow: inset 0 0 0 3px rgba(39, 184, 211, 0.48), 0 0 34px rgba(39, 184, 211, 0.2);
+  text-shadow: 0 2px 0 #000;
+}
+
+.scene-text,
+.narration {
+  color: var(--poster-white);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+.narration {
+  border-color: rgba(184, 238, 244, 0.56);
+  background: rgba(0, 12, 18, 0.34);
+}
+
+.dive-window,
+.treasure-field,
+.return-video-frame {
+  border-color: rgba(184, 238, 244, 0.74);
+  border-width: 2px;
+  border-radius: 4px;
+  background-color: var(--sea-deep);
+  box-shadow: inset 0 0 42px rgba(0, 0, 0, 0.56), 0 10px 26px rgba(0, 0, 0, 0.24);
+}
+
+.rpg-log,
+.return-video-caption {
+  border: 2px solid var(--poster-line);
+  border-left: 6px solid var(--sea-cyan);
+  border-radius: 3px;
+  background: var(--poster-panel);
+  color: var(--poster-white);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+}
+
+#s-removal {
+  min-height: 0;
+  overflow: hidden;
+}
+
+#s-removal h1,
+#removal-hint {
+  flex: 0 0 auto;
+}
+
+.return-video-wrap {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.return-video-frame {
+  min-height: 0;
+}
+
+.return-video {
+  object-fit: contain;
+}
+
+#removal-hint {
+  margin-top: 6px;
+}
+
+.video-sound-button {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  min-height: 48px;
+  padding: 11px 18px;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--poster-white);
+  border-radius: 4px;
+  background: rgba(0, 18, 27, 0.92);
+  color: var(--poster-white);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.video-sound-button[hidden] {
+  display: none;
+}
+
+.return-video-caption {
+  padding: 10px 8px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.return-caption-line {
+  display: block;
+  white-space: nowrap;
+}
+
+.rpg-log-title {
+  color: var(--sea-foam);
+}
+
+.result-row {
+  border-color: rgba(184, 238, 244, 0.36);
+}
+
+.ticket-card {
+  border: 2px solid var(--poster-white);
+  border-radius: 3px;
+  background: linear-gradient(160deg, #052c39 0%, #020b11 70%);
+  color: var(--poster-white);
+  box-shadow: inset 0 0 0 2px rgba(39, 184, 211, 0.52);
+}
+
+.ticket-sub {
+  color: var(--poster-muted);
+  letter-spacing: 0;
+}
+
+.ticket-link {
+  border: 1px solid var(--poster-white);
+  border-radius: 3px;
+  background: var(--sea-cyan);
+  color: var(--poster-ink);
+}
+
+@media (max-height: 700px) {
+  h1 { font-size: 25px; }
+  .lead { font-size: 13px; line-height: 1.62; }
+  .intro-character-stage { min-height: 150px; }
+  .intro-character { width: 138px; }
+}
+
+@media (max-width: 360px) {
+  .return-video-caption {
+    padding: 8px 4px;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+}

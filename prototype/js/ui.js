@@ -172,5 +172,13 @@ function applyStrings() {
   document.getElementById("prep-note").innerHTML = STRINGS.prepNotes[0];
   document.querySelector("#prep-mash .gauge-label").textContent = STRINGS.mashGuide;
   document.getElementById("timeout-text").innerHTML = STRINGS.timeoutText;
-  document.querySelector(".return-video-caption").innerHTML = STRINGS.returnCaption;
+  const returnCaption = document.querySelector(".return-video-caption");
+  const returnCaptionLines = STRINGS.returnCaption.split(/<br\s*\/?\s*>/i);
+  returnCaption.replaceChildren();
+  returnCaptionLines.forEach((line) => {
+    const span = document.createElement("span");
+    span.className = "return-caption-line";
+    span.textContent = line;
+    returnCaption.appendChild(span);
+  });
 }

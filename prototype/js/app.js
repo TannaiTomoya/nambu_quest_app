@@ -184,13 +184,43 @@ function openChest() {
 function startRemoval() {
   show("s-removal");
   const video = document.getElementById("return-video");
-  document.getElementById("s-removal").onclick = showResult;
+  const removalScreen = document.getElementById("s-removal");
+  const soundButton = document.getElementById("video-sound-button");
+  const removalHint = document.getElementById("removal-hint");
+
+  soundButton.hidden = true;
+  video.controls = false;
+  video.muted = false;
+  video.volume = 1;
+  removalHint.textContent = "タップでスキップ";
+
+  removalScreen.onclick = (event) => {
+    if (event.target.closest("#video-sound-button")) return;
+    showResult();
+  };
+
+  soundButton.onclick = (event) => {
+    event.stopPropagation();
+    video.muted = false;
+    video.volume = 1;
+    const retryPromise = video.play();
+    if (retryPromise && typeof retryPromise.then === "function") {
+      retryPromise.then(() => {
+        soundButton.hidden = true;
+        removalHint.textContent = "タップでスキップ";
+      }).catch(() => {
+        removalHint.textContent = "端末の音量設定を確認してください";
+      });
+    }
+  };
+
   video.onended = showResult;
-  video.currentTime = 0;
+  if (video.readyState > 0) video.currentTime = 0;
   const playPromise = video.play();
   if (playPromise && typeof playPromise.catch === "function") {
     playPromise.catch(() => {
-      video.controls = true;
+      soundButton.hidden = false;
+      removalHint.textContent = "音声付きで再生をタップ";
     });
   }
 }
