@@ -120,7 +120,7 @@ function showChestReward() {
           (state.ticket.titleHtml || state.ticket.name.replace("招待券", "<br>招待券")) +
         "</div>" +
         "<div class='ticket-sub'>" + state.ticket.sub + "</div>" +
-        "<a class='ticket-link' href='" + directDestinationUrl(state.ticket.destinationId) + "' target='_blank' rel='noopener'>詳細を見る</a>" +
+        "<a class='ticket-link' href='" + ANALYTICS.ticketHref(state.ticket.destinationId) + "' target='_blank' rel='noopener'>詳細を見る</a>" +
       "</div>" +
       "もぐりポイント +" + state.points;
   } else {
@@ -147,7 +147,7 @@ function renderResult() {
   document.getElementById("r-rank").textContent = "★".repeat(state.rank);
   document.getElementById("r-point").textContent = state.selectedPoint.name;
   document.getElementById("r-item").innerHTML = state.isTicket
-    ? "🎟️ <a href='" + directDestinationUrl(state.ticket.destinationId) + "' target='_blank' rel='noopener' style='color:#ffd45c'>" +
+    ? "🎟️ <a href='" + ANALYTICS.ticketHref(state.ticket.destinationId) + "' target='_blank' rel='noopener' style='color:#ffd45c'>" +
       state.item + "</a>"
     : state.item;
   document.getElementById("r-points").textContent = "+" + state.points;

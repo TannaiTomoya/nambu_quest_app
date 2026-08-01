@@ -5,6 +5,7 @@
 
 // ===== 画面1+2: 装備準備 =====
 function startPrep() {
+  ANALYTICS.gameStarted(); // 2回目以降の呼び出しは内部で無視される
   state.startedAt = Date.now();
   state.stepDone = [false, false, false];
   state.gauge = 0;
@@ -197,6 +198,7 @@ function startRemoval() {
 // ===== 結果 =====
 function showResult() {
   renderResult();
+  ANALYTICS.gameCompleted(); // 動画終了とスキップの両方から呼ばれるが、送信は1回だけ
 }
 
 // ===== 初期化 =====
@@ -215,7 +217,8 @@ function wireButtons() {
 
 async function initGame() {
   try {
-    await loadGameConfig();
+    const data = await loadGameConfig();
+    ANALYTICS.init({ config_version: data.config_version, features: data.features });
   } catch (e) {
     // 設定が読めない場合はゲームを開始できない（file://直開き・サーバー未起動など）
     const lead = document.querySelector("#s-intro .lead");
