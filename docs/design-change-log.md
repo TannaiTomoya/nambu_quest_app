@@ -28,6 +28,20 @@
 
 ---
 
+## 2026-08-01 計測の冪等性とフォールバッククリック回収（schema_version 2）
+
+ステージング公開前に、再送による重複保存とWorker障害時のクリック欠落を防ぐ変更を入れた。
+
+- 全イベントに生成時1回の `event_id`（UUID）を付与。再送しても同一値。Worker/D1は `UNIQUE` + `INSERT OR IGNORE` で2件目を無視
+- 送信をoutbox方式に変更（先にsessionStorageへ保存→成功後に削除）。pagehide・タブ非表示・onlineでも再送
+- Worker未達時の直接リンククリックを `official_link_fallback_opened` としてキューへ記録し、復旧後に送信。主KPIの分子に含める
+- `environment` をホスト名から自動判別（dev / staging / production）。集計は production で絞る
+- destinationId→URLの正は `game-config.json` の `DESTINATIONS` に一元化（Workerもこれを許可リストとして読む想定）
+
+詳細契約は `docs/tracking-worker.md`。
+
+---
+
 ## 2026-07-30 自由探索型から準備タイムアタック型へ
 
 ### 変更前（旧設計）

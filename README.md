@@ -53,15 +53,21 @@ python3 -m http.server 8080
 
 - `game_started` / `game_completed` / `replay_started` — `POST /events`
 - `official_link_clicked` — 外部リンクを `GET /go/:destinationId?sid=` 経由にすることでWorker側が記録
+- `official_link_fallback_opened` — Worker未達時にフォールバックの直接リンクを開いたクリック（復旧後に再送され、クリック率の取りこぼしを防ぐ）
 
 設計上の約束：
 
 - session_id は1プレイごとの `crypto.randomUUID()`。個人情報は送らない
-- 送信失敗でもゲームは止まらない。失敗イベントは sessionStorage に退避しオンライン復帰時に再送
+- **冪等性**：全イベントに生成時1回だけ発行する `event_id`（UUID）を付与。再送しても同じ値のため、Worker側（D1の `event_id` UNIQUE制約 + `INSERT OR IGNORE`）で重複保存を防げる
+- **outbox方式**：イベントは先に sessionStorage のキューへ保存し、送信成功後に削除。送信中にタブを閉じても消えず、オンライン復帰・pagehide・タブ非表示のタイミングで再送
+- 送信失敗でもゲームは止まらない
 - Workerに到達できない場合、外部リンクは直接URLへフォールバック（リンクは必ず開ける）
-- 流入元の計測はゲームURLの `?src=` で行う（例: QRコードに `?src=event` を付与）
+- **environment** をホスト名から自動判別して全イベントに付与（`127.0.0.1`→`dev`、`*.pages.dev`→`staging`、独自ドメイン→`production`）。ステージング操作が本番KPIへ混ざらない
+- 流入元の計測はゲームURLの `?src=` で行う（例: QRコードに `?src=reception_2026` を付与）
 
-主KPI：公式情報クリック率 = `official_link_clicked` のユニークsession数 ÷ `game_completed` のユニークsession数
+主KPI：公式情報クリック率 =（`official_link_clicked` または `official_link_fallback_opened` のユニークsession数）÷ `game_completed` のユニークsession数（`environment='production'` で絞る）
+
+destinationId → 実URL の対応表は `game-config.json` の `DESTINATIONS` が唯一の定義で、Worker側もこれを許可リストとして読む想定です（クライアントとWorkerのリンク先ずれを構造的に防止）。
 
 送信先は `prototype/js/analytics.js` 冒頭の定数で管理しています（開発中: `http://127.0.0.1:8787`、本番: Cloudflare Pages Functions の同一オリジンを想定）。**Worker本体は未デプロイ**で、契約仕様のみ確定しています。
 
