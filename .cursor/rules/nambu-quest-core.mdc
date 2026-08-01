@@ -5,13 +5,29 @@ alwaysApply: true
 
 # 南部もぐり観光RPG — 中核ルール
 
-## 技術枠（変更禁止）
+## 技術枠（現行方針）
 
-- フロント：Unity / C#
-- バックエンド：Python / FastAPI
-- ORM：PeeWee
-- DB：SQLite
-- 別フレームワークへの置き換えや勝手な構成変更をしない
+- 本体：HTML / CSS / JavaScript（`prototype/` 配下、外部ライブラリ非依存）
+- 設定：`prototype/config/game-config.json`（ゲーム数値・文言・地点・景品）
+- 計測：Cloudflare Pages + Pages Functions（Worker）+ D1 を想定
+- Unity / FastAPI / PeeWee / SQLite は旧設計。`archive/` ブランチに退避済みで、mainには存在しない
+- 別フレームワーク（React等）への置き換えや勝手な構成変更をしない
+
+## ゲーム仕様（現在の正）
+
+- 準備時間：12秒、ランク2：ゲージ50%、ランク3：85%
+- 数値・景品・画面遷移・帰還動画・文化表現は `game-config.json` と現行実装が正
+- ゲーム挙動の変更とファイル構造の変更を同時に行わない
+
+## 計測ルール
+
+- イベントは game_started / game_completed / replay_started / official_link_clicked のみ
+- session_id は 1プレイごとに crypto.randomUUID() で生成する
+- 個人情報を送らない。localStorage に永続的な個人識別IDを保存しない
+- 計測の送信失敗でゲームを止めない
+- 外部リンクは destinationId を使い、Worker の `GET /go/:destinationId?sid=` 経由で開く
+- 実URLの許可リストは Worker 側で管理する。HTML側の実URLはフォールバック用途のみ
+- 送信先エンドポイントは `js/analytics.js` の定数1か所で管理する
 
 ## 進め方
 
@@ -19,26 +35,16 @@ alwaysApply: true
 - 依頼範囲外の機能を一気に追加しない
 - 1回の変更は依頼された範囲に限定する
 
-## 推薦・報酬
+## 報酬・演出
 
-- テーマ判定に乱数を使わない
-- 称号は関心テーマから決定的に1件選ぶ（乱数なし。同じ入力なら同じ称号）
-- 称号候補からのランダム選択は採用しない
-- ランダム性は豆絞り柄の候補選択にのみ使う
-- 通信失敗時も共通報酬と資料館CTAを必ず表示する
-
-## Unity資産の変更手段
-
-- AI/Codex が直接書き換えてよい Unity 資産は、原則 `.cs` と `Assets/Editor/` 配下の Editor スクリプトのみ
-- `.unity` / `.prefab` をテキスト（YAML）で直接編集しない
-- シーン・プレハブの変更は Unity Editor API（Editor スクリプト）または手動 Inspector 経由で行う
-- 一時 Editor スクリプトは「用途」「再実行しても安全か」「実行方法」をコメントで明示し、使い捨てなら役目を終えたら削除する
+- 景品（招待券・クーポン）は地点ごとに確定で表示する（乱数なし）
+- 通信失敗時も景品表示と外部リンク（フォールバックURL）を必ず表示する
+- 文化的な記述（装備工程の名称・順番など）は監修前の暫定。確認なしに確定させない
 
 ## 秘密情報・ファイル配置
 
 - APIキー、パスワード、接続文字列などの秘密情報をコードに書かない
-- 画像はプロジェクト直下の `uploads/` に置く
-- 画像を `static/` 配下には置かない
+- Cloudflare のトークン類は Wrangler のシークレット管理を使う
 
 ## 命名の統一
 
@@ -48,5 +54,5 @@ alwaysApply: true
 
 ## 詳細の参照先
 
-- 前提・設計判断：`docs/ai_context.md`
-- 実装ルール：`docs/coding_rules.md`
+- 設計変更の経緯：`docs/design-change-log.md`
+- 計測基盤の契約：`docs/tracking-worker.md`
