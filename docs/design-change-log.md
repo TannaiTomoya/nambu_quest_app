@@ -1,6 +1,30 @@
 # 設計変更の記録
 
-`docs/` 配下の他ファイル（`requirements.md` / `screens.md` / `routes.md` / `database.md` / `ai_context.md`）は、いずれも**旧設計に基づいた内容のまま**です。改訂するまでは、このファイルの内容を優先してください。
+---
+
+## 2026-08-01 HTML版を本体へ再構成（Unity・backend・旧docsの削除）
+
+### 変更内容
+
+- `prototype/`（HTML/CSS/JS）を**唯一の本体**とし、Unity版・FastAPI backend・旧設計docsを `main` から削除
+  - Unity自由移動版：`archive/t2-free-movement` ブランチに退避済み
+  - Unity新ループ移植版：`archive/unity-prep-loop` ブランチに退避済み
+  - backend・旧docsはコミット履歴から復元可能
+- 単一HTML（`prep-loop-prototype.html`）を `index.html` + `css/app.css` + `js/`（config-loader / analytics / game-state / ui / app）へ分割。ゲーム挙動は不変
+- ゲーム数値・地点・景品・表示文言・feature flags を `prototype/config/game-config.json` へ分離。数値（準備12秒・ランク2閾値50%・ランク3閾値85%）は変更なし
+- イベント計測クライアントを追加（`game_started` / `game_completed` / `replay_started`、詳細は `docs/tracking-worker.md`）
+- 外部リンクを計測Worker `GET /go/:destinationId?sid=` 経由に変更。Worker未達時は直接URLへフォールバック
+- 未到達のデッドコード（絵文字紙芝居の装備解除演出）は分割時に削除
+
+### 変更した理由
+
+- 新ループの実装・演出はHTML版が最も進んでおり、スマホ・PCブラウザでそのまま配布できる
+- 主KPI（公式情報クリック率）の計測には軽量なWorker+D1で足り、FastAPI+SQLiteの常駐サーバーは過剰
+- 会場利用はスマホのモバイル通信を前提とする。オフライン対策として失敗イベントの後送信とリンクのフォールバックを実装済み
+
+### 実物特典導入時のDB移行条件（未解消・暫定）
+
+特典の実発行が決まり、発行数管理・利用済み確認・不正防止が必要になった時点で、発行台帳テーブルと管理者認証を含む構成（D1拡張または専用バックエンド）を再検討する。
 
 ---
 
@@ -57,11 +81,11 @@
 
 ## 旧実装の扱い
 
-旧設計に基づく Unity 実装（プレイヤーの自由移動、探索地点の接近判定）は削除していません。
+旧設計に基づく Unity 実装と FastAPI backend は 2026-08-01 に `main` から削除しました。
 
-- ブランチ `archive/t2-free-movement` が復元用の参照点です
-- 該当コミットは `main` の履歴にも含まれます（`e6dc1fd` まで）
-- `unity/NambuQuest` の `ExplorationScene` を地点選択画面へ作り替える際は、上記から復元できます
+- Unity自由移動版：ブランチ `archive/t2-free-movement`
+- Unity新ループ移植版：ブランチ `archive/unity-prep-loop`
+- backend（固定レスポンスの `POST /analyze` まで）と旧docs：`main` のコミット履歴（`c552fb3` の直前）から復元できます
 
 ---
 
@@ -78,5 +102,5 @@
 ## 実装上の凍結事項
 
 - 招待券は演出とリンク誘導の検証のみ。実物特典の運営条件（発行主体・原資・定員・利用確認・失効条件）は未確定
-- `POST /analyze` は固定レスポンスのみ。DB保存・推薦ロジックは未実装
 - ポイントはゲーム内限定（「もぐりポイント」）。外部価値を持つ地域ポイントや割引券は別フェーズ
+- 計測Worker（Cloudflare Pages Functions + D1）は契約のみ確定（`docs/tracking-worker.md`）。デプロイは未実施
