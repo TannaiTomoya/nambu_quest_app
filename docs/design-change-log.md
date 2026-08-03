@@ -2,6 +2,25 @@
 
 ---
 
+## 2026-08-03 発表用素材の非公開分離
+
+- 実在人物の写真・LINEトーク画像・発表PDFを `pitch-private/`（Git追跡外・デプロイ対象外）へ分離
+- `.gitignore` に `pitch-private/` と、`prototype/pitch/` へ個人素材を置いた場合の保険パターン（`line-*.png` / `kabumoto-*.png` / `*.pdf`）を追加
+- リポジトリと本番 `/pitch/` に残る発表資料は、個人素材を含まない公開版（11枚）のみ
+- 理由：本人の使用許可は発表用途に対するもので、公開リポジトリ・公開URLでの無期限配布までは含まれないため
+
+---
+
+## 2026-08-02 本番公開（独自ドメイン）と発表資料の追加
+
+- Cloudflare Pages + Pages Functions + D1 を本番デプロイし、独自ドメイン **https://nambu-moguri.com/** で公開
+- D1 への冪等保存（同一 `event_id` × 3送信 → 1件）をリモートで確認済み
+- QRコードは `https://nambu-moguri.com/` をエンコードして生成
+- 発表資料（HTML版ピッチデッキ）を `prototype/pitch/` に追加。`/pitch/` で閲覧可
+- ポスター調テーマ `prototype/css/poster-theme.css` とOGPメタデータを追加
+
+---
+
 ## 2026-08-01 HTML版を本体へ再構成（Unity・backend・旧docsの削除）
 
 ### 変更内容

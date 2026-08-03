@@ -3,6 +3,8 @@
 岩手県洋野町に伝わる潜水技術「南部もぐり」を題材にした、短時間プレイのゲームアプリです。
 南部もぐりを知らない人に疑似体験を通じて関心を持ってもらい、種市歴史民俗資料館などの公式観光情報へ誘導することを目的としています。
 
+**公開中: https://nambu-moguri.com/** （Cloudflare Pages。計測用の Pages Functions + D1 も同一プロジェクトで稼働中）
+
 ## 構成
 
 **HTML版（`prototype/`）が唯一の本体です。** Unity版とFastAPI backendは旧設計として `main` から削除済みです（下記「旧実装」参照）。
@@ -13,9 +15,11 @@
 | `docs/` | 設計変更の記録・計測Workerの契約仕様 |
 
 ```
-prototype/
+prototype/                  # Pages の静的配信ルート（= 公開されるもの）
 ├── index.html              # 画面マークアップ
-├── css/app.css             # スタイル
+├── css/
+│   ├── app.css             # 基本スタイル
+│   └── poster-theme.css    # 深海ポスター調のビジュアルテーマ
 ├── js/
 │   ├── config-loader.js    # game-config.json の読み込み
 │   ├── analytics.js        # イベント計測（送信先はこのファイル冒頭で管理）
@@ -23,8 +27,14 @@ prototype/
 │   ├── ui.js               # 画面描画
 │   └── app.js              # 進行フローと初期化
 ├── config/game-config.json # ゲーム数値・地点・景品・表示文言・feature flags
-└── assets/nanbu_return_scene.mp4  # 帰還演出の動画
+├── assets/nanbu_return_scene.mp4  # 帰還演出の動画
+└── pitch/                  # 発表資料（公開版。/pitch/ で閲覧可）
+
+functions/                  # Pages Functions（POST /events・GET /go/:destinationId）
+db/schema.sql               # D1 テーブル定義（event_id UNIQUE）
 ```
+
+個人が写る写真やトーク履歴などの発表用素材は、リポジトリ外（Git追跡外・デプロイ対象外）で管理しています。
 
 ## ゲームループ（1プレイ45〜60秒）
 
@@ -69,16 +79,17 @@ python3 -m http.server 8080
 
 destinationId → 実URL の対応表は `game-config.json` の `DESTINATIONS` が唯一の定義で、Worker側もこれを許可リストとして読む想定です（クライアントとWorkerのリンク先ずれを構造的に防止）。
 
-送信先は `prototype/js/analytics.js` 冒頭の定数で管理しています（開発中: `http://127.0.0.1:8787`、本番: Cloudflare Pages Functions の同一オリジンを想定）。**Worker本体は未デプロイ**で、契約仕様のみ確定しています。
+送信先は `prototype/js/analytics.js` 冒頭の定数で管理しています（同一オリジン相対パス `/events`・`/go/`。ローカルは `npm run dev`、ステージング/本番は Cloudflare Pages 上で提供）。
 
-## 公開の想定
+## 公開構成（稼働中）
 
+- 本番URL：**https://nambu-moguri.com/**（発表資料は https://nambu-moguri.com/pitch/ ）
 - ホスティング：Cloudflare Pages（静的配信 + Pages Functions で計測を同居）
 - 保存先：Cloudflare D1（SQLiteベース。KPIをSQLで算出）
-- 独自ドメインはQRコード印刷前までに確定
+- デプロイ：`npx wrangler pages deploy prototype --project-name=nambu-quest --branch=main`
 - 会場利用はスマートフォンのモバイル通信を前提とする
 
-## Cloudflare ステージング（Pages + D1）
+## Cloudflare セットアップ（Pages + D1）
 
 リポジトリ構成：
 
