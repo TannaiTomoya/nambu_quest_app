@@ -47,3 +47,11 @@ logs/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# 発表資料の非公開版（実在人物の写真・LINEトーク画像・PDFを含む）
+# 個人の許可は発表用途のみ。GitHub・Cloudflareへ公開しない
+pitch-private/
+# 万一 prototype/pitch/ に個人素材を置いても追跡させない保険
+prototype/pitch/line-*.png
+prototype/pitch/kabumoto-*.png
+prototype/pitch/*.pdf
